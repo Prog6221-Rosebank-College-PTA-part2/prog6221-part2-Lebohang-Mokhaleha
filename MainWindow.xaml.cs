@@ -156,10 +156,10 @@ namespace CyberSecurityChatBotWithUI
         {
             UserSay(input);
 
-            //reject anything that isn't a number between 1 and 9
-            if (!int.TryParse(input, out int choice) || choice < 1 || choice > 9)
+            //reject anything that isn't a number in the valid range
+            if (!int.TryParse(input, out int choice) || choice < 1 || choice > 4)
             {
-                BotSay("Please enter a number between 1 and 9.");
+                BotSay("Please enter a number between 1 and 4.");
                 return;
             }
 
@@ -167,39 +167,31 @@ namespace CyberSecurityChatBotWithUI
 
             switch (choice)
             {
-                case 7: //exit the application
+                case 1: //search by keyword - ask the user what they want to know about
+                    BotSay("Type a keyword or question and I'll find information on it.\n" +
+                           "Try: vpn, malware, firewall, backup, phishing, scam,\n" +
+                           "two factor, encryption, identity theft, social engineering...");
+                    _state = BotState.AwaitingKeyword;
+                    return;
+
+                case 2: //open the task assistant / reminder feature
+                    ShowTaskMenu();
+                    return;
+
+                case 3: //start the mini quiz
+                    StartQuiz();
+                    return;
+
+                case 4: //exit the application
                     BotSay($"Goodbye, {_username}! Stay safe online. 🔒");
                     ActivityLog.WriteSessionEnd(_username);
                     Divider();
                     EndSession();
                     return;
-
-                case 8: //open the task assistant feature
-                    ShowTaskMenu();
-                    return;
-
-                case 9: //start the mini quiz feature
-                    StartQuiz();
-                    return;
             }
-
-            //options 1-6 use the pre-written responses stored in chatbotdata
-            BotSay(ChatBotData.MenuResponses[choice]);
-
-            if (choice == 6)
-            {
-                //option 6 needs a follow-up keyword from the user
-                BotSay("Type your keyword or question:");
-                _state = BotState.AwaitingKeyword;
-                return;
-            }
-
-            //options 1-5 are fully answered - ask if they want to keep going
-            Divider();
-            AskContinue();
         }
 
-        // ── keyword handler (option 6, with nlp tone detection) ───────────────
+        // ── keyword handler (option 1, with nlp tone detection) ───────────────
         private void HandleKeyword(string input, NlpResult nlp)
         {
             UserSay(input);
@@ -592,16 +584,11 @@ namespace CyberSecurityChatBotWithUI
         private void ShowMenu()
         {
             BotSay("==== MENU ====\n" +
-                   "  1. How do I detect a phishing email?\n" +
-                   "  2. What is the best way to secure my accounts?\n" +
-                   "  3. What should I do if I suspect a data breach?\n" +
-                   "  4. How do I know if a website is secure?\n" +
-                   "  5. What is ransomware?\n" +
-                   "  6. Other / Ask by keyword\n" +
-                   "  7. Exit\n" +
-                   "  8. Task Assistant  ← manage your cybersecurity to-do list\n" +
-                   "  9. Mini Quiz       ← test your cybersecurity knowledge\n\n" +
-                   "Choose an option (1–9):");
+                   "  1. Search by keyword\n" +
+                   "  2. Task Assistant  ← manage your cybersecurity to-do list\n" +
+                   "  3. Mini Quiz       ← test your cybersecurity knowledge\n" +
+                   "  4. Exit\n\n" +
+                   "Choose an option (1–4):");
             _state = BotState.AwaitingMenu;
         }
 
